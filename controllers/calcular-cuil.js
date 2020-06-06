@@ -7,11 +7,12 @@ let calcularCuil = {
     agregarCeros: function(documento){
         let datoDni = String(documento)
         let cantidad = datoDni.length
+        let respuesta = ""
         switch(cantidad){
             case 9:
             case 10:
             case 11:
-                console.log('Documento tiene más de 8 dígitos');
+                respuesta = 'Documento tiene más de 8 dígitos';
                 datoDni = 0
             break;
             case 7:
@@ -27,7 +28,7 @@ let calcularCuil = {
             case 3:
             case 2:
             case 1:
-                console.log('Documento informado tiene pocos dígitos');
+                respuesta = 'Documento informado tiene pocos dígitos';
                 datoDni = 0;
             break;
                 
@@ -35,16 +36,35 @@ let calcularCuil = {
             return datoDni;
     },
 
-    cuil: function(sexo, dni){
-        let dniTexto = String(calcularCuil.agregarCeros(dni));
-        if (dniTexto == 0){
-            return 'Con ese documento no se puede procesar';
+    respuestaSinDni: function(req, res){
+        if (req.params.sexo == 'm' || req.params.sexo == 'M' || req.params.sexo == 'f' || req.params.sexo == 'F') {
+            res.send('Siempre debe enviar el numero de Documento despues del /género/')
         } else {
-        let sex = sexo;
-        if (sex == 'M' || sex == 'F'){
+            res.send('Siempre debe enviar el numero de Documento despues del /género/, adicionalmente, tenga en cuenta que los géneros posibles son M o F')
+        }
+        
+    },
+    respuestaInicial: function(req, res){
+        res.send('Hola! con esta app podrás calcular el CUIL de cualquier persona, solo debes cargar despues del localhost:3000, /calcular-cuil/, luego el género como /F/ o /M/, y continuando el numero de documento')
+    },
+    respuestaGenero: function(req, res){
+        res.send('Recuerda que despues del localhost:3000/calcular-cuil/, debes escribir el género como /F/ o /M/, y continuando el numero de documento')
+    },
+    calcular: function(req, res){
+        let dniTexto = String(calcularCuil.agregarCeros(req.params.dni));
+
+        if(dniTexto == undefined){
+            this.respuestaSinDni
+        }
+
+        if (dniTexto == 0){
+            res.send('Con ese documento no se puede procesar');
+        } else {
+        let sex = req.params.sexo;
+        if (sex == 'M' || sex == 'm'|| sex == 'F' || sex == 'f'){
             let numeroTexto;
             let arrayNumero = [];
-            if (sex == 'M'){
+            if (sex == 'M' || sex == 'm'){
                 numeroTexto = 20;
                 arrayNumero = [2, 0];
             } else {
@@ -83,14 +103,13 @@ let calcularCuil = {
                 final = 11 - verificador;
             }
 
-            return numeroTexto + '-' + dniTexto + '-' + final;
+            res.send(numeroTexto + '-' + dniTexto + '-' + final);
 
         } else {
-            return 'El primer parámetro puede ser M (masculino) o F (femenino)';
+            res.send('El primer parámetro debe ser M (masculino) o F (femenino)');
         }
     }
-    }
+    }    
 }
-//console.log(cuil('F',23292686))
 
-module.exports = calcularCuil;
+module.exports = calcularCuil
